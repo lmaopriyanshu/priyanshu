@@ -1,0 +1,49 @@
+pip install requests pandas
+import requests
+import pandas as pd
+
+# Define GitHub API URL
+GITHUB_API_URL = "https://api.github.com"
+
+# Function to fetch repositories for a user
+def fetch_repositories(user, token):
+    url = f"{GITHUB_API_URL}/users/{user}/repos"
+    headers = {"Authorization": f"token {token}"}
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()  # Raise an error for bad status codes
+    return response.json()
+
+# Function to extract languages from repositories
+def extract_languages(repositories):
+    languages = []
+    for repo in repositories:
+        languages.append(repo['language'])
+    return languages
+
+# Function to analyze languages
+def analyze_languages(languages):
+    # Convert list to pandas DataFrame for analysis
+    df = pd.DataFrame(languages, columns=['language'])
+    # Remove null values
+    df = df.dropna()
+    # Count occurrences of each language
+    language_counts = df['language'].value_counts()
+    return language_counts
+
+# Main function
+def main(user, token):
+    # Fetch repositories
+    repositories = fetch_repositories(user, token)
+    # Extract languages
+    languages = extract_languages(repositories)
+    # Analyze languages
+    language_counts = analyze_languages(languages)
+    # Print the results
+    print(language_counts)
+
+# Replace 'your_username' with the GitHub username you want to analyze
+# Replace 'your_github_token' with your GitHub personal access token
+if __name__ == "__main__":
+    user = "your_username"
+    token = "your_github_token"
+    main(user, token)
